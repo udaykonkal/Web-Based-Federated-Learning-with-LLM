@@ -3,7 +3,9 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-DATA_DIR = BASE_DIR / "data"
+# Allow DATA_DIR to be overridden by environment variable (used on Render)
+_DATA_DIR_ENV = os.environ.get("DATA_DIR", "")
+DATA_DIR = Path(_DATA_DIR_ENV) if _DATA_DIR_ENV else BASE_DIR / "data"
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Web-Based Federated Learning Platform with LLM-Based Automation for Healthcare"
@@ -13,15 +15,17 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 
     # Database
-    DATABASE_URL: str = f"sqlite+aiosqlite:///{BASE_DIR}/backend/fl_healthcare.db"
-    SYNC_DATABASE_URL: str = f"sqlite:///{BASE_DIR}/backend/fl_healthcare.db"
+    DATABASE_URL: str = f"sqlite+aiosqlite:///./fl_healthcare.db"
+    SYNC_DATABASE_URL: str = f"sqlite:///./fl_healthcare.db"
 
-    # CORS
+    # CORS — includes Vercel frontend + local dev
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
+        "https://web-based-federated-learning-with-llm.vercel.app",
+        "https://*.vercel.app",
         "*"
     ]
 
