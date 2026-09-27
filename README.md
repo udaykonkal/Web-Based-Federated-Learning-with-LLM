@@ -1,13 +1,13 @@
 # A Web-Based Federated Learning Platform with LLM-Based Automation for Healthcare
 
 [![Frontend](https://img.shields.io/badge/Frontend-Vercel-black?logo=vercel)](https://web-based-federated-learning-with-llm.vercel.app)
-[![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?logo=render)](https://fl-healthcare-backend.onrender.com)
-[![API Docs](https://img.shields.io/badge/API_Docs-Swagger-85EA2D?logo=swagger)](https://fl-healthcare-backend.onrender.com/docs)
+[![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?logo=render)](https://web-based-federated-learning-with-llm.onrender.com)
+[![API Docs](https://img.shields.io/badge/API_Docs-Swagger-85EA2D?logo=swagger)](https://web-based-federated-learning-with-llm.onrender.com/docs)
 [![GitHub](https://img.shields.io/badge/GitHub-Repo-181717?logo=github)](https://github.com/udaykonkal/Web-Based-Federated-Learning-with-LLM)
 
 > 🌐 **Live Demo**: [web-based-federated-learning-with-llm.vercel.app](https://web-based-federated-learning-with-llm.vercel.app)
-> 🔗 **Backend API**: [fl-healthcare-backend.onrender.com](https://fl-healthcare-backend.onrender.com)
-> 📖 **API Docs**: [fl-healthcare-backend.onrender.com/docs](https://fl-healthcare-backend.onrender.com/docs)
+> 🔗 **Backend API**: [web-based-federated-learning-with-llm.onrender.com](https://web-based-federated-learning-with-llm.onrender.com)
+> 📖 **API Docs**: [web-based-federated-learning-with-llm.onrender.com/docs](https://web-based-federated-learning-with-llm.onrender.com/docs)
 
 An end-to-end, production-grade healthcare Federated Learning (FL) platform built for academic research and final-year major project demonstration.
 
