@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  Code2, 
-  Sliders, 
-  CheckCircle2, 
-  AlertCircle, 
-  Clock, 
-  Copy, 
-  Check, 
-  Play, 
+import {
+  ChevronDown,
+  ChevronUp,
+  Code2,
+  Sliders,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  Copy,
+  Check,
+  Play,
   Terminal,
   Trash2
 } from 'lucide-react';
@@ -207,14 +207,14 @@ export const NotebookStageCard: React.FC<NotebookStageProps> = ({
   return (
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs hover:border-slate-300 transition-colors">
       {/* Cell Header Strip (Kaggle / Colab Cell Header) */}
-      <div 
+      <div
         className="px-4 py-3 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between cursor-pointer select-none hover:bg-slate-100/70 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center space-x-3.5">
           {/* Colab Interactive Play Button in Gutter */}
           {isAdvancedMode && onRunCell ? (
-            <div 
+            <div
               onClick={(e) => {
                 e.stopPropagation();
                 if (status !== 'running') {
@@ -222,13 +222,12 @@ export const NotebookStageCard: React.FC<NotebookStageProps> = ({
                 }
               }}
               title={`Run Cell [${stageNumber}] (Ctrl+Enter)`}
-              className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xs ${
-                status === 'running'
-                  ? 'bg-sky-500 text-white animate-pulse'
-                  : status === 'completed'
+              className={`w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xs ${status === 'running'
+                ? 'bg-sky-500 text-white animate-pulse'
+                : status === 'completed'
                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100'
                   : 'bg-white border border-slate-300 text-slate-700 hover:border-sky-500 hover:bg-sky-50 hover:text-sky-600 hover:scale-105'
-              }`}
+                }`}
             >
               {status === 'running' ? (
                 <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -276,8 +275,8 @@ export const NotebookStageCard: React.FC<NotebookStageProps> = ({
               </span>
             )}
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="text-slate-400 hover:text-slate-700 p-1 rounded hover:bg-slate-200/60 transition-colors"
             onClick={(e) => {
               e.stopPropagation();

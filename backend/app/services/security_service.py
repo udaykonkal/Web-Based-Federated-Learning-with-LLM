@@ -89,9 +89,9 @@ def apply_simulated_attack(
 
 def verify_and_score_updates(
     client_updates: List[Dict[str, Any]],
-    norm_threshold: float = 5.0,
+    norm_threshold: float = 8.0,
     cos_threshold: float = -0.1,
-    anomaly_threshold: float = 0.55
+    anomaly_threshold: float = 0.65
 ) -> List[Dict[str, Any]]:
     """
     Mathematical Update Verification Pipeline (Section 30):

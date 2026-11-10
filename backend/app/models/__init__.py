@@ -14,6 +14,8 @@ from app.models.entities import (
     ModelUpdate,
     SecurityEvent,
     LLMRecommendation,
+    ModelDiscussion,
+    ModelPipelineProposal,
 )
 
 __all__ = [
@@ -32,4 +34,7 @@ __all__ = [
     "ModelUpdate",
     "SecurityEvent",
     "LLMRecommendation",
+    "ModelDiscussion",
+    "ModelPipelineProposal",
 ]
+

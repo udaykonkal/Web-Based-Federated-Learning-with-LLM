@@ -13,7 +13,8 @@ from app.ml.models import (
     calculate_l2_norm,
     evaluate_model,
     serialize_weights,
-    deserialize_weights
+    deserialize_weights,
+    canonical_standardize
 )
 
 def aggregate_fedavg(
@@ -109,11 +110,9 @@ def evaluate_global_model_on_benchmark(
     X = df.drop(columns=[target_col]).values.astype(np.float32)
     y = df[target_col].values.astype(np.float32).reshape(-1, 1)
 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    X_tensor = torch.tensor(X_scaled)
-    y_tensor = torch.tensor(y)
+    X_scaled = canonical_standardize(X, healthcare_task)
+    X_tensor = torch.tensor(X_scaled, dtype=torch.float32)
+    y_tensor = torch.tensor(y, dtype=torch.float32)
 
     model = get_model_for_task(healthcare_task)
     set_weights(model, weights)

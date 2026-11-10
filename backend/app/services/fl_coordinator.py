@@ -191,9 +191,9 @@ async def execute_fl_round(
                 client_id=c_id,
                 healthcare_task=task,
                 global_weights_bytes=global_weights_bytes,
-                epochs=experiment.local_epochs or 3,
-                lr=experiment.learning_rate or 0.01,
-                batch_size=experiment.batch_size or 16
+                epochs=experiment.local_epochs or 5,
+                lr=experiment.learning_rate or 0.003,
+                batch_size=experiment.batch_size or 32
             )
             train_time_ms = train_res.get("training_time_ms") or int((time.time() - train_start) * 1000)
 
@@ -284,6 +284,7 @@ async def execute_fl_round(
             existing_part.local_epochs = experiment.local_epochs or 3
             existing_part.local_accuracy = v["accuracy"]
             existing_part.local_loss = v["loss"]
+            existing_part.local_dice = v.get("dice_coefficient", v.get("f1_score"))
             existing_part.training_time_ms = v.get("training_time_ms")
             existing_part.update_size_bytes = v.get("update_size_bytes", 0)
             existing_part.update_verified = True
@@ -302,6 +303,7 @@ async def execute_fl_round(
                 local_epochs=experiment.local_epochs or 3,
                 local_accuracy=v["accuracy"],
                 local_loss=v["loss"],
+                local_dice=v.get("dice_coefficient", v.get("f1_score")),
                 training_time_ms=v.get("training_time_ms"),
                 update_size_bytes=v.get("update_size_bytes", 0),
                 update_verified=True,
@@ -355,6 +357,7 @@ async def execute_fl_round(
 
     # 7. Evaluate new global model on central benchmark
     eval_metrics = evaluate_global_model_on_benchmark(new_global_weights, task)
+    dice_val = eval_metrics.get("dice_coefficient", eval_metrics.get("f1_score"))
 
     # Telemetry: Global Evaluation Completed
     await emit_telemetry("GLOBAL_EVALUATION_COMPLETED", {
@@ -362,7 +365,8 @@ async def execute_fl_round(
         "round_number": round_number,
         "accuracy": eval_metrics["accuracy"],
         "loss": eval_metrics["loss"],
-        "f1_score": eval_metrics["f1_score"]
+        "f1_score": eval_metrics["f1_score"],
+        "dice_coefficient": dice_val
     })
 
     # 8. Complete Round Record
@@ -372,6 +376,7 @@ async def execute_fl_round(
     fl_round.precision = eval_metrics["precision"]
     fl_round.recall = eval_metrics["recall"]
     fl_round.f1_score = eval_metrics["f1_score"]
+    fl_round.dice_coefficient = dice_val
     fl_round.selected_clients = participating
     fl_round.accepted_updates_count = len(participating)
     fl_round.aggregation_metrics = agg_metrics
@@ -381,13 +386,15 @@ async def execute_fl_round(
     experiment.current_round = round_number
     experiment.final_accuracy = eval_metrics["accuracy"]
     experiment.final_loss = eval_metrics["loss"]
+    experiment.final_dice = dice_val
     if round_number >= experiment.total_rounds:
         experiment.status = ExperimentStatus.COMPLETED.value
         await emit_telemetry("EXPERIMENT_COMPLETED", {
             "experiment_id": experiment.id,
             "total_rounds": experiment.total_rounds,
             "final_accuracy": eval_metrics["accuracy"],
-            "final_loss": eval_metrics["loss"]
+            "final_loss": eval_metrics["loss"],
+            "final_dice": dice_val
         })
 
     await db.commit()

@@ -44,12 +44,15 @@ async def init_db() -> None:
         for table, col, col_type in [
             ("experiments", "final_accuracy", "FLOAT"),
             ("experiments", "final_loss", "FLOAT"),
+            ("experiments", "final_dice", "FLOAT"),
             ("fl_rounds", "precision", "FLOAT"),
             ("fl_rounds", "recall", "FLOAT"),
             ("fl_rounds", "f1_score", "FLOAT"),
+            ("fl_rounds", "dice_coefficient", "FLOAT"),
             ("fl_rounds", "aggregation_metrics", "JSON"),
             ("client_participations", "training_status", "VARCHAR(50)"),
             ("client_participations", "update_size_bytes", "INTEGER"),
+            ("client_participations", "local_dice", "FLOAT"),
         ]:
             try:
                 await conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type};"))

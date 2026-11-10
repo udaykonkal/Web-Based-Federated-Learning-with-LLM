@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
-import { Building2, Lock, Mail, AlertCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
+import {
+  Building2, Lock, Mail, AlertCircle, ArrowLeft,
+  ShieldCheck, Heart, Activity
+} from 'lucide-react';
 import type { TokenResponse } from '../../types';
 
+const CLIENTS = [
+  { id: 'hospital_a', label: 'Hospital A', email: 'hospital_a@flplatform.org', pass: 'client1pass' },
+  { id: 'hospital_b', label: 'Hospital B', email: 'hospital_b@flplatform.org', pass: 'client2pass' },
+  { id: 'hospital_c', label: 'Hospital C', email: 'hospital_c@flplatform.org', pass: 'client3pass' },
+];
+
 export const ClientLogin: React.FC = () => {
-  const [email, setEmail] = useState('hospital_a@flplatform.org');
-  const [password, setPassword] = useState('client1pass');
+  const [email, setEmail] = useState(CLIENTS[0].email);
+  const [password, setPassword] = useState(CLIENTS[0].pass);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,117 +58,144 @@ export const ClientLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-61px)] flex items-center justify-center p-6 bg-[#F8F9FA] text-[#202124]">
-      <div className="w-full max-w-md">
-        <Link 
-          to="/" 
-          className="inline-flex items-center space-x-1.5 text-xs font-medium text-gray-500 hover:text-gray-800 mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Home</span>
-        </Link>
+    <div className="min-h-screen bg-slate-50 flex items-stretch">
 
-        <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative">
-          {/* Header */}
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
-              <Building2 className="w-5 h-5" />
+      {/* Left Panel – Branding */}
+      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden flex-col justify-between p-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500" />
+        <div className="absolute inset-0 opacity-[0.08]" style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }} />
+        <div className="absolute bottom-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute top-1/3 -left-16 w-56 h-56 bg-cyan-300/20 rounded-full blur-3xl animate-float-delayed" />
+
+        <div className="relative z-10">
+          <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs font-medium transition-colors mb-10">
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Home
+          </Link>
+          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center mb-6 border border-white/30 shadow-lg">
+            <Building2 className="w-7 h-7 text-white" />
+          </div>
+          <h1 className="text-3xl font-black text-white leading-tight tracking-tight mb-3">
+            Clinical Node<br />Workspace
+          </h1>
+          <p className="text-cyan-50/80 text-sm leading-relaxed max-w-xs">
+            Train federated models locally using your institution's private dataset. Only weight deltas leave your secure environment.
+          </p>
+        </div>
+
+        <div className="relative z-10 space-y-3">
+          {[
+            { icon: <Lock className="w-4 h-4" />, text: 'Isolated private non-IID datasets per hospital' },
+            { icon: <Activity className="w-4 h-4" />, text: 'PyTorch local training — no data leaves node' },
+            { icon: <ShieldCheck className="w-4 h-4" />, text: 'Cryptographic weight delta verification' },
+            { icon: <Heart className="w-4 h-4" />, text: 'HIPAA-compliant privacy boundary enforced' },
+          ].map(item => (
+            <div key={item.text} className="flex items-center gap-3 text-white/80 text-xs">
+              <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center flex-shrink-0 text-white/90">
+                {item.icon}
+              </div>
+              {item.text}
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900 tracking-tight">Clinical Client Node</h1>
-              <p className="text-xs text-sky-700 font-medium">Healthcare Institution FL Login</p>
+          ))}
+        </div>
+      </div>
+
+      {/* Right Panel – Form */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 animate-fade-in-up">
+        <div className="w-full max-w-sm">
+          <Link
+            to="/"
+            className="lg:hidden inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-700 mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Home
+          </Link>
+
+          <div className="mb-7">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-sky-200 mb-4">
+              <Building2 className="w-5 h-5 text-white" />
             </div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Clinical Client Node</h2>
+            <p className="text-slate-500 text-sm mt-1">Healthcare Institution FL Login</p>
           </div>
 
-          {/* Quick Institutional Account Selector */}
-          <div className="mb-6">
-            <p className="text-[11px] font-semibold text-gray-500 mb-2 font-mono uppercase">Institutional Client Node:</p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleSelectClient('hospital_a@flplatform.org', 'client1pass')}
-                className={`px-2 py-2 rounded-lg text-center border transition-all text-xs cursor-pointer ${
-                  email.includes('hospital_a')
-                    ? 'bg-sky-50 border-sky-300 text-sky-700 font-bold'
-                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <div className="font-bold text-xs">Hospital A</div>
-                <div className="text-[10px] text-gray-400 font-mono">client_1</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSelectClient('hospital_b@flplatform.org', 'client2pass')}
-                className={`px-2 py-2 rounded-lg text-center border transition-all text-xs cursor-pointer ${
-                  email.includes('hospital_b')
-                    ? 'bg-sky-50 border-sky-300 text-sky-700 font-bold'
-                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <div className="font-bold text-xs">Hospital B</div>
-                <div className="text-[10px] text-gray-400 font-mono">client_2</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSelectClient('hospital_c@flplatform.org', 'client3pass')}
-                className={`px-2 py-2 rounded-lg text-center border transition-all text-xs cursor-pointer ${
-                  email.includes('hospital_c')
-                    ? 'bg-sky-50 border-sky-300 text-sky-700 font-bold'
-                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <div className="font-bold text-xs">Hospital C</div>
-                <div className="text-[10px] text-gray-400 font-mono">client_3</div>
-              </button>
-            </div>
-          </div>
-
-          {/* Privacy Guarantee */}
-          <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 flex items-start space-x-2 mb-6">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-            <p>
-              Local Privacy Enforced: Patient records remain strictly inside this client environment. You train PyTorch models locally and transmit only weight updates.
+          {/* Hospital Quick Selector */}
+          <div className="mb-5">
+            <p className="text-[11px] font-bold font-mono text-slate-400 uppercase tracking-widest mb-2.5">
+              Select Institution
             </p>
+            <div className="grid grid-cols-3 gap-2">
+              {CLIENTS.map((client) => {
+                const isActive = email === client.email;
+                return (
+                  <button
+                    key={client.id}
+                    type="button"
+                    onClick={() => handleSelectClient(client.email, client.pass)}
+                    className={`relative px-2 py-2.5 rounded-xl text-center border transition-all text-xs font-semibold cursor-pointer ${
+                      isActive
+                        ? 'bg-sky-50 border-sky-300 text-sky-700 shadow-sm shadow-sky-100'
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-sky-200 hover:bg-sky-50/40'
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-sky-500 border-2 border-white flex items-center justify-center">
+                        <span className="w-1 h-1 rounded-full bg-white" />
+                      </span>
+                    )}
+                    <div className="font-bold">{client.label}</div>
+                    <div className="text-[9px] font-mono text-slate-400 mt-0.5">{client.id}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Privacy notice */}
+          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs mb-5">
+            <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-px" />
+            <p>Patient records remain strictly inside this client environment. Only weight updates are transmitted.</p>
           </div>
 
           {error && (
-            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center space-x-2 mb-4">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs mb-4">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-500" />
               <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Institutional Email
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white border border-gray-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 rounded-lg pl-9 pr-3 py-2 text-xs text-gray-900 placeholder-gray-400 outline-none transition-all"
+                  className="input-field pl-10"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Client Key / Password
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white border border-gray-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 rounded-lg pl-9 pr-3 py-2 text-xs text-gray-900 placeholder-gray-400 outline-none transition-all"
+                  className="input-field pl-10"
                 />
               </div>
             </div>
@@ -167,12 +203,12 @@ export const ClientLogin: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 px-4 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-semibold text-xs flex items-center justify-center space-x-2 transition-colors cursor-pointer shadow-xs mt-2"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 disabled:opacity-60 text-white font-bold text-sm shadow-lg shadow-sky-200 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer mt-2"
             >
               {loading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                <span>Access Clinical Node Workspace</span>
+                'Access Clinical Node Workspace'
               )}
             </button>
           </form>

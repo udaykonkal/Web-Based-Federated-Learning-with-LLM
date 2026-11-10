@@ -23,6 +23,7 @@ class FLRoundResponse(BaseModel):
     precision: Optional[float] = None
     recall: Optional[float] = None
     f1_score: Optional[float] = None
+    dice_coefficient: Optional[float] = None
     participating_clients: List[str] = []
     aggregation_metrics: Dict[str, Any] = {}
     started_at: Optional[datetime] = None
@@ -34,6 +35,9 @@ class FLRoundResponse(BaseModel):
     @classmethod
     def populate_from_orm(cls, data: Any) -> Any:
         if hasattr(data, "selected_clients"):
+            dice_val = getattr(data, "dice_coefficient", None)
+            if dice_val is None:
+                dice_val = getattr(data, "f1_score", None)
             return {
                 "id": data.id,
                 "experiment_id": data.experiment_id,
@@ -44,6 +48,7 @@ class FLRoundResponse(BaseModel):
                 "precision": data.precision,
                 "recall": data.recall,
                 "f1_score": data.f1_score,
+                "dice_coefficient": dice_val,
                 "participating_clients": data.selected_clients or [],
                 "aggregation_metrics": data.aggregation_metrics or {},
                 "started_at": data.started_at,
@@ -67,6 +72,7 @@ class ExperimentResponse(BaseModel):
     batch_size: int = 16
     final_accuracy: Optional[float] = None
     final_loss: Optional[float] = None
+    final_dice: Optional[float] = None
     created_at: datetime
     rounds: List[FLRoundResponse] = []
 

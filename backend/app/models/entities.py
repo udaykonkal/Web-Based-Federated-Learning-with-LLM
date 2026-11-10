@@ -109,6 +109,9 @@ class MLModel(Base):
 
     dataset = relationship("Dataset", back_populates="models")
     experiments = relationship("Experiment", back_populates="model")
+    discussions = relationship("ModelDiscussion", back_populates="model", cascade="all, delete-orphan")
+    pipeline_proposals = relationship("ModelPipelineProposal", back_populates="model", cascade="all, delete-orphan")
+
 
 class Experiment(Base):
     __tablename__ = "experiments"
@@ -134,6 +137,7 @@ class Experiment(Base):
 
     final_accuracy = Column(Float, nullable=True)
     final_loss = Column(Float, nullable=True)
+    final_dice = Column(Float, nullable=True)
 
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
@@ -157,6 +161,7 @@ class FLRound(Base):
     precision = Column(Float, nullable=True)
     recall = Column(Float, nullable=True)
     f1_score = Column(Float, nullable=True)
+    dice_coefficient = Column(Float, nullable=True)
     aggregation_metrics = Column(JSON, default=dict)
     global_model_path = Column(String(255), nullable=True)
     
@@ -186,6 +191,7 @@ class ClientParticipation(Base):
     local_epochs = Column(Integer, default=3)
     local_accuracy = Column(Float, nullable=True)
     local_loss = Column(Float, nullable=True)
+    local_dice = Column(Float, nullable=True)
     training_time_ms = Column(Integer, nullable=True)
     update_size_bytes = Column(Integer, default=0)
     
@@ -247,3 +253,34 @@ class LLMRecommendation(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     experiment = relationship("Experiment", back_populates="llm_recommendations")
+
+class ModelDiscussion(Base):
+    __tablename__ = "model_discussions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    model_id = Column(Integer, ForeignKey("ml_models.id"), nullable=False)
+    author_id = Column(String(50), nullable=False)
+    author_name = Column(String(255), nullable=False)
+    author_role = Column(String(50), default="contributor")
+    title = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    model = relationship("MLModel", back_populates="discussions")
+
+class ModelPipelineProposal(Base):
+    __tablename__ = "model_pipeline_proposals"
+
+    id = Column(Integer, primary_key=True, index=True)
+    model_id = Column(Integer, ForeignKey("ml_models.id"), nullable=False)
+    author_id = Column(String(50), nullable=False)
+    author_name = Column(String(255), nullable=False)
+    title = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    architecture = Column(String(100), default="MLP")
+    code_snippet = Column(Text, nullable=False)
+    status = Column(String(50), default="approved")  # "draft", "pending_review", "approved"
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    model = relationship("MLModel", back_populates="pipeline_proposals")
+

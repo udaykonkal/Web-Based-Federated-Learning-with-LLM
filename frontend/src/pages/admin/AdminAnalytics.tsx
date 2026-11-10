@@ -10,7 +10,11 @@ import {
   XCircle, 
   Scale, 
   Building2, 
-  Sparkles 
+  Sparkles,
+  RotateCcw,
+  AlertTriangle,
+  RefreshCw,
+  Award
 } from 'lucide-react';
 
 interface MetricDelta {
@@ -97,6 +101,29 @@ export const AdminAnalytics: React.FC = () => {
       document.body.removeChild(a);
     } catch (err: any) {
       alert('Failed to export summary: ' + err.message);
+    }
+  };
+
+  // Reset FL back to base state
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetScope, setResetScope] = useState<'current' | 'all'>('current');
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState<string | null>(null);
+  const [resetError, setResetError] = useState<string | null>(null);
+
+  const handleResetFLToBase = async () => {
+    setIsResetting(true);
+    setResetError(null);
+    try {
+      const targetTask = resetScope === 'all' ? 'all' : task;
+      const res = await api.post(`/admin/analytics/reset-to-base?task=${targetTask}`);
+      setResetSuccess(res.data.message || 'Federated Learning successfully reset to base state (Round 0).');
+      setShowResetModal(false);
+      await fetchAnalytics(task);
+    } catch (err: any) {
+      setResetError(err.response?.data?.detail || 'Failed to reset Federated Learning to base.');
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -391,6 +418,197 @@ export const AdminAnalytics: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Notification Alert */}
+      {resetSuccess && (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-start justify-between shadow-xs animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <div>
+              <p className="text-sm font-bold">Federated Learning Reset Successful</p>
+              <p className="text-xs text-emerald-700 mt-0.5">{resetSuccess}</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setResetSuccess(null)}
+            className="text-xs text-emerald-700 hover:text-emerald-900 font-bold px-2 py-1 rounded cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Error Notification Alert */}
+      {resetError && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 flex items-start justify-between shadow-xs animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+            <div>
+              <p className="text-sm font-bold">FL Reset Operation Failed</p>
+              <p className="text-xs text-rose-700 mt-0.5">{resetError}</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setResetError(null)}
+            className="text-xs text-rose-700 hover:text-rose-900 font-bold px-2 py-1 rounded cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SECTION: FEDERATED LEARNING BASE RESET & LIFECYCLE MANAGEMENT */}
+      {/* ========================================================================= */}
+      <div className="card p-6 bg-gradient-to-br from-white via-slate-50/70 to-amber-50/30 rounded-2xl border border-slate-200/90 shadow-xs relative overflow-hidden">
+        {/* Subtle accent line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-rose-400 to-indigo-500" />
+
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="p-2 rounded-xl bg-amber-100 text-amber-800 border border-amber-200">
+                <RotateCcw className="w-4 h-4 text-amber-700" />
+              </span>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 font-mono">
+                  Lifecycle & Baseline Control
+                </span>
+                <h3 className="text-base font-extrabold text-slate-900">
+                  Reset Federated Learning to Base Paper State
+                </h3>
+              </div>
+              <span className="ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-300 flex items-center gap-1">
+                <Award className="w-3 h-3 text-amber-600" />
+                Base Paper Baseline: 88.7%
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Restore the collaborative training cycle back to its clean baseline state (Round 0). This clears aggregated rounds, client parameter delta queues (ΔW), and re-initializes the central global model back to its original baseline weights (W₀) so you can execute and demonstrate training from scratch.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 pt-1 text-xs font-mono">
+              <div className="flex items-center gap-1.5 text-slate-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Base Model Parameters: <strong>Pruned to W₀</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5 text-slate-600">
+                <span className="w-2 h-2 rounded-full bg-sky-500" />
+                <span>Client Privacy: <strong>100% Preserved (Zero EHR Leakage)</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5 text-slate-600">
+                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                <span>Target: <strong>Surpass 90% via FedAvg</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full lg:w-auto">
+            <button
+              id="reset-fl-base-btn"
+              onClick={() => setShowResetModal(true)}
+              className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-600 via-rose-600 to-rose-700 hover:from-amber-700 hover:via-rose-700 hover:to-rose-800 text-white text-xs font-bold font-mono tracking-wide shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Reset FL to Base State</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Confirmation Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 max-w-lg w-full p-6 shadow-2xl space-y-5 animate-scaleUp">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 border border-amber-200 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900">
+                  Confirm Federated Learning Base Reset
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Are you sure you want to reset the collaborative training cycle back to its base state?
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5 text-xs">
+              <div className="font-semibold text-slate-800 flex items-center justify-between">
+                <span>Select Target Task Scope:</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setResetScope('current')}
+                  className={`p-2.5 rounded-lg border text-left font-mono transition-all cursor-pointer ${
+                    resetScope === 'current'
+                      ? 'bg-amber-50 border-amber-400 text-amber-900 font-bold'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="text-[11px]">Current Task Only</div>
+                  <div className="text-[10px] text-slate-500 truncate">{task === 'diabetes_prediction' ? 'Diabetes Model' : 'Heart Disease Model'}</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setResetScope('all')}
+                  className={`p-2.5 rounded-lg border text-left font-mono transition-all cursor-pointer ${
+                    resetScope === 'all'
+                      ? 'bg-amber-50 border-amber-400 text-amber-900 font-bold'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="text-[11px]">All Consortium Tasks</div>
+                  <div className="text-[10px] text-slate-500">All Experiments & Models</div>
+                </button>
+              </div>
+
+              <div className="text-[11px] text-slate-600 space-y-1.5 pt-2 border-t border-slate-200">
+                <p className="font-semibold text-slate-700">Actions to be executed:</p>
+                <ul className="list-disc pl-4 space-y-1">
+                  <li>Current FL round counter restored to <strong>Round 0</strong>.</li>
+                  <li>Central model weights re-initialized to <strong>Baseline W₀ Checkpoint</strong>.</li>
+                  <li>All participating client model updates and staged parameter queues cleared.</li>
+                  <li>Ready for fresh multi-client local training execution.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowResetModal(false)}
+                disabled={isResetting}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                id="confirm-reset-fl-btn"
+                onClick={handleResetFLToBase}
+                disabled={isResetting}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs hover:shadow-md cursor-pointer transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                {isResetting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Resetting to Base...</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Confirm Reset to Base</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
